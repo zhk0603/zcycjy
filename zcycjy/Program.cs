@@ -15,8 +15,8 @@ namespace zcycjy
             var crawler = Crawler.CrawlerBuilder.Current
                 .UsePipeline<LoginPipeline>(new LoginPipelineOption
                 {
-                    UserName = "戚晓",
-                    IdCar = "450922199406244008"
+                    UserName = "*",
+                    IdCar = "*"
                 })
                 .Builder();
 
@@ -64,12 +64,12 @@ namespace zcycjy
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
             });
 
-            var courseId = 217;
-            var linkId = 11748865;
+            var courseId = 146;
+            var linkId = 11748855;
             var year = 2018;
 
-            var lessionId = 212;
-            var lessionMinute = 41;
+            var lessionId = 143;
+            var lessionMinute = 46;
             var lessionCount = lessionMinute * 60 / 180;
 
             var site2 = Options.Downloader.GetPage(new Crawler.Site
@@ -112,6 +112,7 @@ namespace zcycjy
                         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
                 });
 
+                Console.WriteLine(s.HtmlSource);
                 Thread.Sleep(1000);
             }
 
