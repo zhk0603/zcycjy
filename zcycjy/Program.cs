@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -15,8 +16,14 @@ namespace zcycjy
             var crawler = Crawler.CrawlerBuilder.Current
                 .UsePipeline<LoginPipeline>(new LoginPipelineOption
                 {
-                    UserName = "*",
-                    IdCar = "*"
+                    UserName = ConfigurationManager.AppSettings["userName"],
+                    IdCar = ConfigurationManager.AppSettings["idCar"],
+                    CustomerId = ConfigurationManager.AppSettings["customerId"],
+                    CourseId = ConfigurationManager.AppSettings["courseId"],
+                    LinkId = ConfigurationManager.AppSettings["linkId"],
+                    Year = ConfigurationManager.AppSettings["year"],
+                    LessionId = ConfigurationManager.AppSettings["lessionId"],
+                    LessionMinute = int.Parse(ConfigurationManager.AppSettings["lessionMinute"])
                 })
                 .Builder();
 
@@ -64,18 +71,13 @@ namespace zcycjy
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36"
             });
 
-            var courseId = 146;
-            var linkId = 11748855;
-            var year = 2018;
-
-            var lessionId = 143;
-            var lessionMinute = 46;
-            var lessionCount = lessionMinute * 60 / 180;
+            
+            var lessionCount = Options.LessionMinute * 60 / 180;
 
             var site2 = Options.Downloader.GetPage(new Crawler.Site
             {
                 Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-                Url = $"http://www.zcycjy.com/turnToCourseStudyNew?courseId={courseId}&linkId={linkId}&eduYear={year}",
+                Url = $"http://www.zcycjy.com/turnToCourseStudyNew?courseId={Options.CourseId}&linkId={Options.LinkId}&eduYear={Options.Year}",
                 ContentType = "text/html;charset=UTF-8",
                 Cookie = cookie,
                 Referer = "http://www.zcycjy.com/doLogout",
@@ -88,7 +90,7 @@ namespace zcycjy
                 Accept = "*/*",
                 Url = "http://www.zcycjy.com/addIsStudyOtherVedio.do",
                 Method = "POST",
-                Postdata = "lessionId=" + lessionId,
+                Postdata = "lessionId=" + Options.LessionId,
                 ContentType = "application/x-www-form-urlencoded",
                 Cookie = cookie,
                 Referer = "http://www.zcycjy.com/doLogout",
@@ -104,7 +106,7 @@ namespace zcycjy
                     Url = "http://www.zcycjy.com/endStudy.do",
                     Method = "POST",
                     Postdata =
-                        $"lessionId={lessionId}&second={180 * i}&courseId={courseId}&customerId=333214&linkId={linkId}&allStudyTime=180&isClose=false&eduYear={year}",
+                        $"lessionId={Options.LessionId}&second={180 * i}&courseId={Options.CourseId}&customerId={Options.CustomerId}&linkId={Options.LinkId}&allStudyTime=180&isClose=false&eduYear={Options.Year}",
                     ContentType = "application/x-www-form-urlencoded",
                     Cookie = cookie,
                     Referer = "http://www.zcycjy.com/doLogout",
@@ -122,7 +124,7 @@ namespace zcycjy
                 Url = "http://www.zcycjy.com/endStudy.do",
                 Method = "POST",
                 Postdata =
-                    $"lessionId={lessionId}&second={180 * lessionCount}&courseId={courseId}&customerId=333214&linkId={linkId}&allStudyTime=0&isClose=true&eduYear={year}",
+                    $"lessionId={Options.LessionId}&second={180 * lessionCount}&courseId={Options.CourseId}&customerId={Options.CustomerId}&linkId={Options.LinkId}&allStudyTime=0&isClose=true&eduYear={Options.Year}",
                 ContentType = "application/x-www-form-urlencoded",
                 Cookie = cookie,
                 Referer = "http://www.zcycjy.com/doLogout",
@@ -140,5 +142,11 @@ namespace zcycjy
     {
         public string UserName { get; set; }
         public string IdCar { get; set; }
+        public string CustomerId { get; set; }
+        public string CourseId { get; set; }
+        public string LinkId { get; set; }
+        public string Year { get; set; }
+        public string LessionId { get; set; }
+        public int LessionMinute { get; set; }
     }
 }
