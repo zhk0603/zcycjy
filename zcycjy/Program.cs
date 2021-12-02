@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Crawler.Pipelines;
+using HtmlAgilityPack;
 
 namespace zcycjy
 {
@@ -79,9 +80,8 @@ namespace zcycjy
             var courseList = newQueryMyCourse.DocumentNode.SelectNodes("//a[@class='new_learn']");
             Console.WriteLine($"共找到{courseList.Count}个课程");
 
-            for (var index = 19; index < courseList.Count; index++)
+            foreach (var htmlNode in courseList)
             {
-                var htmlNode = courseList[index];
                 var trNode = htmlNode.ParentNode.ParentNode;
 
                 if ("是".Equals(trNode.SelectSingleNode("td[6]").InnerText.Trim()))
@@ -156,11 +156,11 @@ namespace zcycjy
 
                     var currentTime = 0D; // 秒
                     match = Regex.Match(doCourseStudy.DocumentNode.InnerHtml, "vh = '([^<]*)';");
-                    if (match.Success && string.IsNullOrWhiteSpace(match.Value))
+                    if (match.Success && !string.IsNullOrWhiteSpace(match.Value))
                     {
                         var tmp = match.Value.Substring(6); // vh = '540.0';
                         tmp = tmp.Substring(0, tmp.Length - 2);
-                        currentTime = Convert.ToDouble(tmp);
+                        double.TryParse(tmp, out currentTime);
                     }
 
                     var add = Options.Downloader.GetPage(new Crawler.Site
@@ -185,7 +185,7 @@ namespace zcycjy
                         Url = "http://www.zcycjy.com/doSBCusStudyFinsh",
                         Method = "POST",
                         Postdata =
-                                $"lessionId={lessionId}&second={currentTime}&courseId={courseId}&customerId={Options.CustomerId}&linkId={linkId}&allStudyTime=0&isClose=false&eduYear={eduYear}",
+                            $"lessionId={lessionId}&second={currentTime}&courseId={courseId}&customerId={Options.CustomerId}&linkId={linkId}&allStudyTime=0&isClose=false&eduYear={eduYear}",
                         ContentType = "application/x-www-form-urlencoded",
                         Cookie = cookie,
                         Referer = "http://www.zcycjy.com/doCourseStudy",
@@ -194,7 +194,7 @@ namespace zcycjy
                     Console.WriteLine($"\t\t开始添加进度： {start.HtmlSource}");
 
                     var second = 0d;
-                    for (var i = 1 + Math.Floor(currentTime/60); i <= lessionMinute; i++)
+                    for (var i = 1 + Math.Floor(currentTime / 60); i <= lessionMinute; i++)
                     {
                         second = (60 * i);
                         var s = Options.Downloader.GetPage(new Crawler.Site
@@ -217,7 +217,7 @@ namespace zcycjy
                         }
 
                         Console.WriteLine($"\t\t添加进度：{Math.Ceiling(second / 60)} 分钟。 {s.HtmlSource}");
-                        Thread.Sleep(300);
+                        Thread.Sleep(60 * 1000);
                     }
 
                     var end = Options.Downloader.GetPage(new Crawler.Site
@@ -226,7 +226,7 @@ namespace zcycjy
                         Url = "http://www.zcycjy.com/doSBCusStudyFinsh",
                         Method = "POST",
                         Postdata =
-                                $"lessionId={lessionId}&second={second}&courseId={courseId}&customerId={Options.CustomerId}&linkId={linkId}&allStudyTime=0&isClose=true&eduYear={eduYear}",
+                            $"lessionId={lessionId}&second={second}&courseId={courseId}&customerId={Options.CustomerId}&linkId={linkId}&allStudyTime=0&isClose=true&eduYear={eduYear}",
                         ContentType = "application/x-www-form-urlencoded",
                         Cookie = cookie,
                         Referer = "http://www.zcycjy.com/doCourseStudy",
